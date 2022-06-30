@@ -1,15 +1,14 @@
-let particles = [];
 let QM;
 
 function setup() {
   createCanvas(400, 400);
   background(0);
   stroke(255);
-  strokeWeight(2);
+  strokeWeight(0.5);
   noFill();
   QM = new quadMap(0,0,400,400);
-  for (let i = 0; i < 20; i++) {
-    p = new Particle(random(400), random(400));
+  for (let i = 0; i < 30; i++) {
+    p = new Particle(randomGaussian(200,100), randomGaussian(200,100));
     QM.addParticle(p);
   }
 }
@@ -19,6 +18,11 @@ function draw() {
   QM.display();
 }
 
+function mouseDragged() {
+  p = new Particle(mouseX, mouseY);
+  QM.addParticle(p);
+}
+
 class Particle {
   constructor(x, y) {
     this.x = x;
@@ -26,8 +30,7 @@ class Particle {
   }
 
   display() {
-    fill(255);
-    ellipse(this.x, this.y, 2,2);
+    circle(this.x, this.y, 1);
   }
 }
 
@@ -83,11 +86,17 @@ class quadNode{
     if(this.particles.length < 10 && this.NW == null) {
       this.particles.push(p);
     } else {
-      this.NW = new quadNode(this.x0,this.ym,this.xm,this.y1);
-      this.NE = new quadNode(this.xm,this.ym,this.x1,this.y1);
-      this.SE = new quadNode(this.xm,this.y0,this.x1,this.ym);
-      this.SW = new quadNode(this.x0,this.y0,this.xm,this.ym);
-      
+      if(this.NW==null) {
+        this.NW = new quadNode(this.x0,this.ym,this.xm,this.y1);
+        this.NE = new quadNode(this.xm,this.ym,this.x1,this.y1);
+        this.SE = new quadNode(this.xm,this.y0,this.x1,this.ym);
+        this.SW = new quadNode(this.x0,this.y0,this.xm,this.ym);
+        let ptemp = this.particles;
+        this.particles = [];
+        for(let i = 0; i < ptemp.length; i++) {
+          this.addParticle(ptemp[i]);
+        }
+      }
       if(p.x < this.xm && p.y < this.ym) {
         this.SW.addParticle(p);
       }
